@@ -6,7 +6,10 @@ if (isNil QGVAR(initiated)) then {
 	{
 		call compile preprocessFileLineNumbers (BASE_DIR + _x);
 	} forEach [
-		"modules\markers.sqf"
+		"modules\markerDrawing.sqf",
+		"modules\markerManagement.sqf",
+		"modules\pathGeneration.sqf",
+		"modules\userFunctions.sqf"
 	];
 
 	GVAR(initiated) = true;

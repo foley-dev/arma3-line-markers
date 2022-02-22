@@ -1,116 +1,6 @@
 #include "..\macros.hpp"
 
-// Public
-
-GVAR(fnc_drawStraightPath) = {
-	params ["_points", ["_color", "ColorRed"], ["_segmentMaxLength", 100], ["_isLocal", true]];
-
-	private _normalizedPoints = [_points] call GVAR(fnc_normalizePoints);
-	private _id = [_normalizedPoints, _color, _segmentMaxLength, _isLocal] call GVAR(fnc_createPathMarker);
-
-	_id
-};
-
-GVAR(fnc_drawSmoothPath) = {
-	params ["_points", ["_color", "ColorRed"], ["_segmentMaxLength", 100], ["_isLocal", true], ["_tweensCount", 10], ["_curvature", 1.0]];
-
-	private _normalizedPoints = [_points] call GVAR(fnc_normalizePoints);
-	private _generatedPoints = [
-		_normalizedPoints,
-		_curvature,
-		_tweensCount
-	] call GVAR(fnc_generateSplicedBezier);
-	private _id = [_generatedPoints, _color, _segmentMaxLength, _isLocal] call GVAR(fnc_createPathMarker);
-
-	_id
-};
-
-GVAR(fnc_drawSegmentedSmoothPath) = {
-	params ["_points", ["_color", "ColorRed"], ["_segmentMaxLength", 100], ["_isLocal", true], ["_tweensCount", 10], ["_curvature", 0.2], ["_curveDirection", "LEFT"]];
-
-	private _normalizedPoints = [_points] call GVAR(fnc_normalizePoints);
-	private _generatedPoints = [
-		_normalizedPoints,
-		_curvature,
-		_curveDirection,
-		_tweensCount
-	] call GVAR(fnc_generateSegmentedBezier);
-	private _id = [_generatedPoints, _color, _segmentMaxLength, _isLocal] call GVAR(fnc_createPathMarker);
-
-	_id
-};
-
-// Private - marker management
-
-GVAR(allPathMarkers) = createHashMap;
-
-GVAR(fnc_createPathMarker) = {
-	params ["_normalizedPoints", "_color", "_segmentMaxLength", "_isLocal"];
-
-	private _id = [_normalizedPoints] call GVAR(fnc_generateId);
-	private _segments = [_normalizedPoints, _segmentMaxLength] call GVAR(fnc_buildSegmentsFromPoints);
-	private _markerNames = [];
-
-	{
-		private _polyline = [_x] call GVAR(fnc_pointsToPolyline);
-		private _markerName = _id + "_" + str _forEachIndex;
-
-		[
-			_polyline,
-			_color,
-			_markerName,
-			_isLocal
-		] call GVAR(fnc_drawPolyline);
-
-		_markerNames pushBack _markerName;
-	} forEach _segments;
-
-	GVAR(allPathMarkers) set [_id, [_isLocal, _markerNames]];
-
-	_id
-};
-
-GVAR(fnc_deletePathMarker) = {
-	params ["_id"];
-
-	private _pathMarker = GVAR(allPathMarkers) get _id;
-
-	if (isNil "_pathMarker") exitWith {};
-
-	_pathMarker params ["_isLocal", "_markerNames"];
-
-	GVAR(allPathMarkers) deleteAt _id;
-
-	{
-		if (_isLocal) then {
-			deleteMarkerLocal _x;
-		} else {
-			deleteMarker _x;
-		};
-	} forEach _markerNames;
-};
-
-GVAR(fnc_generateId) = {
-	params ["_points"];
-	
-	QUOTE(NAMESPACE) + "_" + ((hashValue _points) regexReplace ["[/]", "-"]) + str random 1000000
-};
-
-GVAR(fnc_normalizePoints) = {
-	params ["_points"];
-
-	private _normalizedPoints = _points apply {
-		switch true do {
-			case (_x isEqualTypeParams [0, 0] || _x isEqualTypeParams [0, 0, 0]): {[_x select 0, _x select 1, 0]};
-			case (_x isEqualType objNull && !isNull _x): {[(getPos _x) select 0, (getPos _x) select 1, 0]};
-			default {objNull};
-		};
-	};
-	
-	_normalizedPoints select {_x isEqualTypeParams [0, 0]}
-};
-
-// Private - path processing
+// Utils
 
 GVAR(fnc_buildSegmentsFromPoints) = {
 	params ["_normalizedPoints", "_maxSegmentLength"];
@@ -149,18 +39,29 @@ GVAR(fnc_buildSegmentsFromPoints) = {
 	_segments
 };
 
-GVAR(fnc_pointsToPolyline) = {
-	params ["_normalizedPoints"];
+GVAR(fnc_normalizePoints) = {
+	params ["_points"];
 
-	private _polyline = [];
+	private _normalizedPoints = _points apply {
+		switch true do {
+			case (_x isEqualTypeParams [0, 0] || _x isEqualTypeParams [0, 0, 0]): {
+				[_x select 0, _x select 1, 0]
+			};
 
-	{
-		_polyline pushBack (_x select 0);
-		_polyline pushBack (_x select 1);
-	} forEach _normalizedPoints;
+			case (_x isEqualType objNull && !isNull _x): {
+				[(getPos _x) select 0, (getPos _x) select 1, 0]
+			};
 
-	_polyline
+			default {
+				objNull
+			};
+		};
+	};
+	
+	_normalizedPoints select {_x isEqualTypeParams [0, 0, 0]}
 };
+
+// Segmented Bezier
 
 GVAR(fnc_generateSegmentedBezier) = {
 	params ["_normalizedPoints", "_curvature", "_curveDirection", "_tweensCount"];
@@ -214,8 +115,10 @@ GVAR(fnc_generateBezierSegmentControlPoints) = {
 	_allControlPoints
 };
 
+// Spliced Bezier
+// http://web.archive.org/web/20131027060328/http://www.antigrain.com/research/bezier_interpolation/index.html#PAGE_BEZIER_INTERPOLATION
+
 GVAR(fnc_generateSplicedBezier) = {
-	// http://web.archive.org/web/20131027060328/http://www.antigrain.com/research/bezier_interpolation/index.html#PAGE_BEZIER_INTERPOLATION
 	params ["_normalizedPoints", "_curvature", "_tweensCount"];
 
 	private _as = [];
@@ -287,26 +190,4 @@ GVAR(fnc_generateSplicedBezier) = {
 	} forEach _allControlPoints;
 
 	_points
-};
-
-// Private - marker drawing
-
-GVAR(fnc_drawPolyline) = {
-	params ["_polyline", "_color", "_markerName", "_isLocal"];
-
-	assert (count _polyline >= 4 && count _polyline mod 2 == 0);
-
-	if (_isLocal) then {
-		_marker = createMarkerLocal [_markerName, [0, 0, 0]];
-		_marker setMarkerShapeLocal "POLYLINE";
-		_marker setMarkerPolylineLocal _polyline;
-		_marker setMarkerColorLocal _color;
-	} else {
-		_marker = createMarker [_markerName, [0, 0, 0]];
-		_marker setMarkerShape "POLYLINE";
-		_marker setMarkerPolyline _polyline;
-		_marker setMarkerColor _color;
-	};
-
-	_marker
 };
