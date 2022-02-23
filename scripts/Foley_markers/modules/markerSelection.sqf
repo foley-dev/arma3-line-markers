@@ -50,3 +50,31 @@ GVAR(fnc_getNearestPolyline) = {
 
 	_nearest select 0
 };
+
+GVAR(fnc_getPolylinesSlice) = {
+	params ["_id", "_start", "_end", ["_step", 1]];
+
+	private _all = [_id] call GVAR(fnc_getAllPolylines);
+
+	if (_start isEqualType "") then {
+		_start = _all find _start;
+	};
+
+	if (_end isEqualType "") then {
+		_end = _all find _end;
+	};
+
+	if (isNil "_start" || isNil "_end") exitWith {
+		[]
+	};
+
+	private _slice = [];
+	_start = _start max 0;
+	_end = (_end - 1) min (count _all - 1);
+
+	for "_i" from _start to _end step _step do {
+		_slice pushBack (_all select _i);
+	};
+
+	_slice
+};
