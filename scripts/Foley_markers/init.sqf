@@ -8,8 +8,10 @@ if (isNil QGVAR(initiated)) then {
 	} forEach [
 		"modules\markerDrawing.sqf",
 		"modules\markerManagement.sqf",
-		"modules\pathGeneration.sqf",
-		"modules\userFunctions.sqf"
+		"modules\markerSelection.sqf",
+		"modules\pathInterpolation.sqf",
+		"modules\pathSegmentation.sqf",
+		"modules\shortcuts.sqf"
 	];
 
 	GVAR(initiated) = true;

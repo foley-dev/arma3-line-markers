@@ -1,76 +1,26 @@
 #include "..\macros.hpp"
 
-// Utils
+// No interpolation
+// Generate straight lines
 
-GVAR(fnc_buildSegmentsFromPoints) = {
-	params ["_normalizedPoints", "_maxSegmentLength"];
-
-	assert (count _normalizedPoints >= 2);
-	assert (_maxSegmentLength > 0);
-
-	private _segments = [];
-	private _remainingDistance = _maxSegmentLength;
-	private _nextPointIndex = 1;
-	private _segment = [_normalizedPoints select 0];
-
-	while {_nextPointIndex < count _normalizedPoints} do {
-		private _lastPointInSegment = _segment select (count _segment - 1);
-		private _nextPoint = _normalizedPoints select _nextPointIndex;
-
-		if (_remainingDistance - (_lastPointInSegment distance _nextPoint) > 0) then {
-			_remainingDistance = _remainingDistance - (_lastPointInSegment distance _nextPoint);
-			_segment pushBack _nextPoint;
-			_nextPointIndex = _nextPointIndex + 1;
-		} else {
-			private _unit = _lastPointInSegment vectorFromTo _nextPoint;
-			systemChat str [_lastPointInSegment, _unit, _remainingDistance];
-			private _inbetween = _lastPointInSegment vectorAdd (_unit vectorMultiply _remainingDistance);
-			_remainingDistance = _maxSegmentLength;
-			_segment pushBack _inbetween;
-			_segments pushBack _segment;
-			_segment = [_inbetween];
-		};
-	};
-
-	if (count _segment >= 2) then {
-		_segments pushBack _segment;
-	};
-
-	_segments
-};
-
-GVAR(fnc_normalizePoints) = {
-	params ["_points"];
-
-	private _normalizedPoints = _points apply {
-		switch true do {
-			case (_x isEqualTypeParams [0, 0] || _x isEqualTypeParams [0, 0, 0]): {
-				[_x select 0, _x select 1, 0]
-			};
-
-			case (_x isEqualType objNull && !isNull _x): {
-				[(getPos _x) select 0, (getPos _x) select 1, 0]
-			};
-
-			default {
-				objNull
-			};
-		};
-	};
+GVAR(fnc_noInterpolation) = {
+	params ["_normalizedPoints", "_parameters"];
 	
-	_normalizedPoints select {_x isEqualTypeParams [0, 0, 0]}
+	_normalizedPoints
 };
 
-// Segmented Bezier
+// Hops
+// Generate curved "hops" or links between distinct points
 
-GVAR(fnc_generateSegmentedBezier) = {
-	params ["_normalizedPoints", "_curvature", "_curveDirection", "_tweensCount"];
+GVAR(fnc_hopsInterpolation) = {
+	params ["_normalizedPoints", "_parameters"];
+	_parameters params [["_curvature", 0.2], ["_tweensCount", 10], ["_curveDirection", "LEFT"]];
 
 	private _allControlPoints = [
 		_normalizedPoints,
 		_curvature,
 		_curveDirection
-	] call GVAR(fnc_generateBezierSegmentControlPoints);
+	] call GVAR(fnc_generateBezierHop);
 	private _points = [];
 
 	{
@@ -85,7 +35,7 @@ GVAR(fnc_generateSegmentedBezier) = {
 	_points
 };
 
-GVAR(fnc_generateBezierSegmentControlPoints) = {
+GVAR(fnc_generateBezierHop) = {
 	params ["_normalizedPoints", "_curvature", "_curveDirection"];
 
 	private _allControlPoints = [];
@@ -116,11 +66,14 @@ GVAR(fnc_generateBezierSegmentControlPoints) = {
 };
 
 // Spliced Bezier
-// http://web.archive.org/web/20131027060328/http://www.antigrain.com/research/bezier_interpolation/index.html#PAGE_BEZIER_INTERPOLATION
+// Generate a smooth, continuous path
+// Adapted from: http://web.archive.org/web/20131027060328/http://www.antigrain.com/research/bezier_interpolation/index.html#PAGE_BEZIER_INTERPOLATION
 
-GVAR(fnc_generateSplicedBezier) = {
-	params ["_normalizedPoints", "_curvature", "_tweensCount"];
+GVAR(fnc_splicedBezierInterpolation) = {
+	params ["_normalizedPoints", "_parameters"];
+	_parameters params [["_curvature", 1.0], ["_tweensCount", 10]];
 
+	// Step 1
 	private _as = [];
 
 	for "_i" from 0 to (count _normalizedPoints) - 2 step 1 do {
@@ -131,6 +84,7 @@ GVAR(fnc_generateSplicedBezier) = {
 		_as pushBack _a;
 	};
 
+	// Step 2
 	private _bs = [];
 
 	for "_i" from 0 to (count _normalizedPoints) - 3 step 1 do {
@@ -154,6 +108,7 @@ GVAR(fnc_generateSplicedBezier) = {
 		_cs pushBack [_anchor, _prevOffset, _nextOffset];
 	};
 
+	// Step 3 & 4
 	private _allControlPoints = [];
 
 	for "_i" from 0 to (count _normalizedPoints) - 2 step 1 do {
