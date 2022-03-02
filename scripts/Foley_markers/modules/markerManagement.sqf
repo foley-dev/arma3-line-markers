@@ -20,7 +20,7 @@ GVAR(fnc_create) = {
 	// Ensure all points are in format [0, 0, 0]
 	private _normalizedPoints = [_points] call GVAR(fnc_normalizePoints);
 
-	// Generate additional points to curve the path
+	// Generate additional points (i.e. to curve the path)
 	private _interpolatedPoints = [
 		_normalizedPoints,
 		_interpolationParameters
@@ -39,7 +39,6 @@ GVAR(fnc_create) = {
 	private _markerNames = [];
 
 	// Draw polylines
-	// Styling can be applied afterwards
 	{
 		private _segmentPoints = _x;
 		private _markerName = _id + "_" + str _forEachIndex;

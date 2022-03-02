@@ -33,3 +33,16 @@ GVAR(fnc_drawSmoothPath) = {
 		[_curvature, _tweensCount]
 	] call GVAR(fnc_create);
 };
+
+GVAR(fnc_drawWavyPath) = {
+	params ["_points", "_color", ["_strengthDistribution", [0.2, 0.3, 0.4]], ["_curvesCount", 3], ["_tweensCount", 10]];
+
+	[
+		str random 1000000,
+		_points,
+		_color,
+		true,
+		GVAR(fnc_waveInterpolation),
+		[_strengthDistribution, _curvesCount, _tweensCount]
+	] call GVAR(fnc_create);
+};
