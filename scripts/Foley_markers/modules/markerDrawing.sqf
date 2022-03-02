@@ -9,6 +9,8 @@ GVAR(fnc_drawPolyline) = {
 	private _polyline = [_normalizedPoints] call GVAR(fnc_convertPointsToPolyline);
 	assert (count _polyline >= 4 && count _polyline mod 2 == 0);
 
+	private _marker = "";
+
 	if (_drawLocally) then {
 		_marker = createMarkerLocal [_markerName, _markerPos];
 		_marker setMarkerShapeLocal "POLYLINE";
@@ -52,3 +54,4 @@ GVAR(fnc_convertPointsToPolyline) = {
 
 	_polyline
 };
+
