@@ -10,7 +10,7 @@ GVAR(fnc_drawStraightPath) = {
 };
 
 GVAR(fnc_drawHops) = {
-	params ["_points", "_color", ["_curvature", 0.2], ["_tweensCount", 10], ["_curveDirection", "LEFT"]];
+	params ["_points", "_color", ["_curvature", 0.2], ["_tweensCount", 10], ["_curveDirection", "RIGHT"]];
 
 	[
 		str random 1000000,
@@ -36,7 +36,7 @@ GVAR(fnc_drawSmoothPath) = {
 };
 
 GVAR(fnc_drawWavyPath) = {
-	params ["_points", "_color", ["_strengthDistribution", [0.2, 0.3, 0.4]], ["_curvesCount", 3], ["_tweensCount", 10]];
+	params ["_points", "_color", ["_strengthDistribution", [0.3, 0.4, 0.5]], ["_curvesCount", 3], ["_tweensCount", 10]];
 
 	[
 		str random 1000000,

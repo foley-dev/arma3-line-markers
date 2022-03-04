@@ -4,6 +4,8 @@
 
 ### Example
 
+![Straight path example](screenshots/straight-path.jpg)
+
 ```sqf
 [
     call Foley_markers_fnc_generateExamplePoints,
@@ -21,6 +23,8 @@
 * color: String - marker color according to [CfgMarkerColors](https://community.bistudio.com/wiki/Arma_3:_CfgMarkerColors)
 
 ## Draw curved hops
+
+![Curved hops example](screenshots/hops.jpg)
 
 ### Example
 
@@ -41,12 +45,14 @@
 * color: String - marker color according to [CfgMarkerColors](https://community.bistudio.com/wiki/Arma_3:_CfgMarkerColors)
 * curvature: Number - (Optional, default `1.0`) determines how curved the lines are (`0.0` - `1.0`)
 * tweensCount: Number - (Optional, default `10`) determines how smooth the curve is
-* curveDirection: String - (Optional, default `"LEFT"`) one of: `"LEFT"`, `"RIGHT"`, `"ALTERNATING"`
+* curveDirection: String - (Optional, default `"RIGHT"`) one of: `"LEFT"`, `"RIGHT"`, `"ALTERNATING"`
 
 
 ## Draw smooth path
 
 ### Example
+
+![Smooth path example](screenshots/smooth-path.jpg)
 
 ```sqf
 [
@@ -70,10 +76,12 @@
 
 ### Examples
 
+![Wavy path example](screenshots/wavy-path.jpg)
+
 ```sqf
 [
 	call Foley_markers_fnc_generateExamplePoints,
-	"ColorGrey"
+	"ColorWhite"
 ] call Foley_markers_fnc_drawWavyPath;
 ```
 
@@ -85,7 +93,7 @@
 
 * points: Array - an array containing 2D/3D positions, marker names or objects
 * color: String - marker color according to [CfgMarkerColors](https://community.bistudio.com/wiki/Arma_3:_CfgMarkerColors)
-* strength: Array - (Optional, default `[0.2, 0.3, 0.4]`) determines wave strength [min, mean, max]
+* strength: Array - (Optional, default `[0.3, 0.4, 0.5]`) determines wave strength [min, mean, max]
 * curvesCount: Number - (Optional, default `3`) determines how frequently path changes direction
 * tweensCount: Number - (Optional, default `10`) determines how smooth the curve is
 
@@ -93,6 +101,8 @@
 ## Track position along the path
 
 ### Example
+
+![Tracking example](screenshots/tracking.jpg)
 
 ```sqf
 [

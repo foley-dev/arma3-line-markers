@@ -10,7 +10,7 @@ GVAR(fnc_noInterpolation) = {
 // Generate curved "hops" or links between distinct points
 GVAR(fnc_hopsInterpolation) = {
 	params ["_normalizedPoints", "_parameters"];
-	_parameters params [["_curvature", 0.2], ["_tweensCount", 10], ["_curveDirection", "LEFT"]];
+	_parameters params [["_curvature", 0.2], ["_tweensCount", 10], ["_curveDirection", "RIGHT"]];
 
 	private _allControlPoints = [];
 	private _isCurvingLeft = _curveDirection isEqualTo "LEFT";
@@ -111,7 +111,7 @@ GVAR(fnc_splicedBezierInterpolation) = {
 // Generate random, irregular waves imitating hand-drawing
 GVAR(fnc_waveInterpolation) = {
 	params ["_normalizedPoints", "_parameters"];
-	_parameters params [["_strengthDistribution", [0.2, 0.3, 0.4]], ["_curvesCount", 3], ["_tweensCount", 10]];
+	_parameters params [["_strengthDistribution", [0.3, 0.4, 0.5]], ["_curvesCount", 3], ["_tweensCount", 10]];
 
 	private _allControlPoints = [];
 

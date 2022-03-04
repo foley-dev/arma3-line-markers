@@ -2,6 +2,8 @@
 
 Smooth line markers script for Arma 3
 
+![Smooth path example](docs/screenshots/smooth-path.jpg)
+
 ## Features
 
 * Draw complex line markers
