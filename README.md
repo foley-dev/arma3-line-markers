@@ -30,6 +30,4 @@ Smooth line markers script for Arma 3
 
 * [Create path](docs/advanced-usage.md#create-path)
 * [Delete path](docs/advanced-usage.md#delete-path)
-* [Path interpolation](docs/advanced-usage.md#path-interpolation)
-* [Path segmentation](docs/advanced-usage.md#path-segmentation)
-* [Marker selection](docs/advanced-usage.md#marker-selection)
+* [Select markers](docs/advanced-usage.md#select-markers)
